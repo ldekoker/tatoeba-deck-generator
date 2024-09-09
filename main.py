@@ -1,19 +1,26 @@
 import os
 import datetime
+import subprocess
+from shutil import rmtree
 
 DIR_PATH = "./database/"
-DB_CONTENTS = ['date.txt', 'dingus.txt',]
+DB_CONTENTS = set(['date.txt', 'links.csv', 'sentences_with_audio.csv',
+                   'sentences_with_audio.uniq.csv', 'sentences.csv',
+                   'sentences.escaped_quotes.csv', 'tags.csv', 'tags.escaped_quotes.csv'])
+
+def checkDirExists(path):
+    return os.path.exists(path)
 
 def checkDatabase():
     """
     Checks if the user already has the tatoeba database, and that if they do it isn't too old.
     """
     # Check if database folder exists
-    if os.path.exists(DIR_PATH):
+    if checkDirExists(DIR_PATH):
         contents = os.listdir(DIR_PATH)
 
         # Check if it has the database files
-        if contents != DB_CONTENTS:
+        if set(contents) != DB_CONTENTS:
             return False
         else:
             # Check if the files are more than 6 months old
@@ -30,12 +37,27 @@ def checkDatabase():
         return False
 
 def downloadDatabase():
+    """
+    Downloads the database.
+    """
+    if checkDirExists(DIR_PATH):
+        rmtree(DIR_PATH)
+    
+    subprocess.run(['wsl', 'bash', 'download_and_prepare.sh'], check=True)
+
+    # create date file
+    today = datetime.date.today()
+    year, month, day = today.year, today.month, today.day
+    date_text = f"{year} {month} {day}"
+    date_file = open("./database/date.txt", "x")
+    date_file.write(date_text)
+    date_file.close()
+
 
 def main():
     # Download database if user doesn't already have it, or their copy is too old
     if not checkDatabase():
-        # download
-        print('p')
+        downloadDatabase()
     
     # Make query
     # Download audio files
