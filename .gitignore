@@ -2,6 +2,7 @@
 database/
 db_backup/
 .gitignore
+output/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

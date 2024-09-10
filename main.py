@@ -178,6 +178,9 @@ def main():
 
     # Download audio files
     # Lemmatise and sort?
+    sort = (input("Do you want to sort the cards? (y/n) ") == 'y' and target_lang == 'mar')
+    if sort:
+        sortMarathiCards()
 
 if __name__ == "__main__":
     main()
