@@ -1,5 +1,7 @@
 #
 database/
+db_backup/
+.gitignore
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
