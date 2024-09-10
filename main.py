@@ -1,14 +1,15 @@
 import os
 import datetime
-import subprocess
 from shutil import rmtree
 import sqlite3
 import csv
+from download_and_prepare import download_and_prepare
 
 DIR_PATH = "./database/"
 DB_CONTENTS = set(['date.txt', 'links.csv', 'sentences_with_audio.csv',
                    'sentences_with_audio.uniq.csv', 'sentences.csv',
-                   'sentences.escaped_quotes.csv', 'tags.csv', 'tags.escaped_quotes.csv'])
+                   'sentences.escaped_quotes.csv', 'tags.csv', 'tags.escaped_quotes.csv',
+                   'tatoeba.sqlite3'])
 
 def checkPathExists(path):
     """
@@ -51,7 +52,7 @@ def downloadTatoebaData():
         rmtree(DIR_PATH)
     
     # Run the shell commands to download all of the files.
-    subprocess.run(['wsl', 'bash', 'download_and_prepare.sh'], check=True)
+    download_and_prepare()
 
     # Create a date file to mark the age of the downloaded database.
     today = datetime.date.today()
@@ -160,11 +161,11 @@ def importDatabase():
 
     print("Database setup and import completed.")
 
-
 def main():
     # Download database if user doesn't already have it, or their copy is too old
     if not checkDatabase():
         downloadTatoebaData()
+        print("Now, import the data into a database.")
         importDatabase()
 
     
