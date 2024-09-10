@@ -3,6 +3,7 @@ import datetime
 from shutil import rmtree
 import sqlite3
 import csv
+from query import makeCardsCSV
 from download_and_prepare import download_and_prepare
 
 DIR_PATH = "./database/"
@@ -162,14 +163,19 @@ def importDatabase():
     print("Database setup and import completed.")
 
 def main():
+    target_lang = input("What is your target language? ")
+    
     # Download database if user doesn't already have it, or their copy is too old
     if not checkDatabase():
+        print("First, downloading the data from Tatoeba.")
         downloadTatoebaData()
+
         print("Now, import the data into a database.")
         importDatabase()
 
-    
-    # Make query
+    # Make a CSV file consisting of sentences with target language audio and english translations.
+    makeCardsCSV(target_lang, "eng")
+
     # Download audio files
     # Lemmatise and sort?
 
