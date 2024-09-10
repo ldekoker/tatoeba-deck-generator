@@ -2,6 +2,8 @@ import os
 import datetime
 import subprocess
 from shutil import rmtree
+import sqlite3
+import csv
 
 DIR_PATH = "./database/"
 DB_CONTENTS = set(['date.txt', 'links.csv', 'sentences_with_audio.csv',
@@ -61,10 +63,110 @@ def downloadTatoebaData():
 
     print("Data downloaded from the internet. Next, data will be imported into a database.")
 
+def importDatabase():
+    # Create an SQLite database file
+    conn = sqlite3.connect('./database/tatoeba.sqlite3')
+    c = conn.cursor()
+
+    # Define SQL commands to create tables
+    create_tables_sql = """
+    PRAGMA foreign_keys = ON;
+
+    CREATE TABLE IF NOT EXISTS sentences (
+        sentence_id INTEGER PRIMARY KEY,
+        lang TEXT,
+        text TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS sentences_with_audio (
+        sentence_id INTEGER,
+        audio_id INTEGER,
+        username TEXT,
+        license TEXT,
+        attribution_url TEXT,
+        FOREIGN KEY (sentence_id) REFERENCES sentences(sentence_id),
+        PRIMARY KEY (sentence_id, audio_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS links (
+        sentence_id INTEGER,
+        translation_id INTEGER,
+        FOREIGN KEY (sentence_id) REFERENCES sentences(sentence_id),
+        FOREIGN KEY (translation_id) REFERENCES sentences(sentence_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS tags (
+        sentence_id INTEGER,
+        tag_name TEXT,
+        FOREIGN KEY (sentence_id) REFERENCES sentences(sentence_id)
+    );
+
+    CREATE INDEX IF NOT EXISTS links_index ON links(sentence_id, translation_id);
+    CREATE INDEX IF NOT EXISTS tags_index ON tags(sentence_id, tag_name);
+    """
+
+    # Execute above SQL commands
+    c.executescript(create_tables_sql)
+    conn.commit()
+
+    def import_csv_to_db(csv_file, table_name, columns, validate=True, translation=False):
+        """
+        Given a csv file and an sql table, import the csv file's data into the table.
+        """
+        with open(csv_file, 'r', encoding='utf-8') as f:
+            reader = csv.reader(f, delimiter='\t')
+
+            # Create an SQLite query to insert data into table based on column names
+            query = (f'INSERT OR IGNORE INTO {table_name} ({",".join(columns)}) '
+                     f'VALUES ({",".join(["?"] * len(columns))})')
+
+            # for each row in the csv file, insert data into corresponding table
+            for data in reader:
+                sentence_id = data[0]
+                if translation:
+                    translation_id = data[1]
+                if validate:
+                    # Check that it exists in sentences
+                    c.execute('SELECT EXISTS(SELECT 1 FROM sentences WHERE sentence_id=?)', (sentence_id,))
+                    exists = c.fetchone()[0]
+
+                    if translation:
+                        c.execute('SELECT EXISTS(SELECT 1 FROM sentences WHERE sentence_id=?)', (translation_id,))
+                        exists = (c.fetchone()[0] and exists)
+
+                    if exists:
+                        c.execute(query, data)
+                    else:
+                        print(f"Skipping row with non-existent sentence_id: {sentence_id}")
+                else:
+                    c.execute(query, data)
+        
+        # After all rows are inserted, save data to database.
+        conn.commit()
+
+    # Import the csv files into the tables
+    import_csv_to_db('database/sentences.escaped_quotes.csv', 'sentences', ['sentence_id', 'lang', 'text'], False)
+    print("Finished importing sentences.")
+    # Maybe ignore first column?
+    import_csv_to_db('database/sentences_with_audio.uniq.csv', 'sentences_with_audio', ['sentence_id', 'audio_id', 'username', 'license', 'attribution_url'])
+    print("Finished importing sentences with audio.")
+    import_csv_to_db('database/links.csv', 'links', ['sentence_id', 'translation_id'], True, True)
+    print("Finished importing sentences links.")
+    import_csv_to_db('database/tags.escaped_quotes.csv', 'tags', ['sentence_id', 'tag_name'])
+    print("Finished importing sentences tags.")
+
+    # Close the database connection
+    conn.close()
+
+    print("Database setup and import completed.")
+
+
 def main():
     # Download database if user doesn't already have it, or their copy is too old
     if not checkDatabase():
         downloadTatoebaData()
+        importDatabase()
+
     
     # Make query
     # Download audio files
