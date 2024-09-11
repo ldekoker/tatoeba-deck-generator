@@ -1,6 +1,6 @@
 import os
-import urllib.request
 import tarfile
+import urllib.request
 
 def download_and_prepare():
     # Define paths

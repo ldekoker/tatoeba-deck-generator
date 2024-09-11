@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-import argparse
 import csv
 import os
 import sqlite3

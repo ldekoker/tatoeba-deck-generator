@@ -1,9 +1,7 @@
 import pandas as pd
 
-import indicnlp
-from indicnlp import common
-from indicnlp import loader
-from indicnlp.tokenize import indic_tokenize 
+from indicnlp import common, loader
+from indicnlp.tokenize import indic_tokenize
 from indicnlp.morph.unsupervised_morph import UnsupervisedMorphAnalyzer
 
 INDIC_NLP_LIB_HOME = ".venv\Lib\site-packages\indic_nlp_library-0.92.dist-info"

@@ -1,11 +1,12 @@
-import os
-import datetime
-from shutil import rmtree
-import sqlite3
 import csv
-from query import makeCardsCSV
-from download_and_prepare import download_and_prepare
+import datetime
+import os
+import sqlite3
+from shutil import rmtree
+
 from audio_urls import download_and_rename
+from download_and_prepare import download_and_prepare
+from query import makeCardsCSV
 from sort import sortMarathiCards
 
 DIR_PATH = "./database/"

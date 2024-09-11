@@ -1,5 +1,6 @@
-import sqlite3
 import os
+import sqlite3
+
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
