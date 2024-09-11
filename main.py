@@ -5,7 +5,7 @@ import sqlite3
 from shutil import rmtree
 
 from audio_urls import download_and_rename
-from download_and_prepare import download_and_prepare
+from download_csvs import downloadprepareTatoebaFiles
 from query import makeCardsCSV
 from sort import sortMarathiCards
 
@@ -56,7 +56,7 @@ def downloadTatoebaData():
         rmtree(DIR_PATH)
     
     # Download all of the files
-    download_and_prepare()
+    downloadprepareTatoebaFiles()
 
     # Create a date file to mark the age of the downloaded files.
     today = datetime.date.today()

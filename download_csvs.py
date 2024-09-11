@@ -2,7 +2,10 @@ import os
 import tarfile
 import urllib.request
 
-def download_and_prepare():
+def downloadprepareTatoebaFiles():
+    """
+    Downloads files from tatoeba.com, unzips them, and then cleans them up by fixing quotes and removing identical entries.
+    """
     # Define paths
     base_dir = './database'
     files = [
@@ -42,12 +45,18 @@ def download_and_prepare():
 
     # Prepare files
     def escape_quotes(input_file, output_file):
+        """
+        Cleans up the csv file so that text that includes quotes doesn't break the CSV structure.
+        """
         with open(input_file, 'r', encoding='utf-8') as infile, open(output_file, 'w', encoding='utf-8', newline='') as outfile:
             for line in infile:
                 # Escape quotes
                 outfile.write(line.replace('"', '""'))
 
     def unique_lines(input_file, output_file):
+        """
+        Removes duplicate entries from the CSV.
+        """
         with open(input_file, 'r', encoding='utf-8') as infile:
             lines = set(infile.readlines())
         with open(output_file, 'w', encoding='utf-8', newline='') as outfile:
@@ -63,10 +72,11 @@ def download_and_prepare():
     if os.path.exists('sentences_with_audio.csv'):
         unique_lines('sentences_with_audio.csv', 'sentences_with_audio.uniq.csv')
 
-    # Clean up
+    # Remove unnecessary files
     print("Cleaning up files.")
     for file in files:
         print(f"Removing {file}.")
         os.remove(file)
 
+    # Return to previous directory
     os.chdir(old_dir)
