@@ -8,6 +8,9 @@ INDIC_NLP_LIB_HOME = ".venv\Lib\site-packages\indic_nlp_library-0.92.dist-info"
 INDIC_NLP_RESOURCES = ".venv\Lib\site-packages\indic_nlp_resources-master"
 
 def lemmatise_marathi_sentences(sentences):
+    """
+    Takes a list of sentences and returns a list of lists, each sub-list being a list of lemmas.
+    """
     common.set_resources_path(INDIC_NLP_RESOURCES)
     
     loader.load()
@@ -26,8 +29,15 @@ def lemmatise_marathi_sentences(sentences):
         print("Sentence Completed")
     return lemmatised_sentences
 
-
 def sortMarathiCards():
+    """
+    Gives each Marathi language card a frequency value by which Anki can sort them.
+    The frequency value = X + Y, where
+                                 X = the number of occurrences of the *least* frequent word in the sentence.
+                                 Y = the average number of occurrences of all the words in the sentence.
+    
+    This has the effect of prioritising sentences that have few rare words and have a high average frequency in a simple manner. This could definitely be improved.
+    """
     # Connect to csv
     csv_file_path = './output/mar → eng.csv'
 
@@ -65,11 +75,6 @@ def sortMarathiCards():
         sentence_value = minimum + (total//len(sentence_array))
         sentence_frequencies.append(sentence_value)
 
-    new_df = pd.DataFrame(sentence_frequencies, columns=['Sentence Frequency Value'])
-
-    sorted_csv_path = './output/sorted mar → eng.csv'
-    new_df.to_csv(sorted_csv_path, index=False)
-
+    # Insert the data as a new column in the csv
     original_df[3] = sentence_frequencies
-
     original_df.to_csv(csv_file_path, index=False, header=False, sep='\t')
