@@ -62,7 +62,8 @@ def makeCardsCSV(target, natives, database="./database/tatoeba.sqlite3"):
         os.makedirs('output')
 
     # Create the CSV in the output directory
-    with open(f'{os.path.join('output', target)} → {natives}.csv', 'w', newline='', encoding='utf-8') as csvfile:
+    output_dir = 'output'
+    with open(f'{os.path.join(output_dir, target)} → {natives}.csv', 'w', newline='', encoding='utf-8') as csvfile:
         out = csv.writer(csvfile, delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
         for row in c.execute(query):
