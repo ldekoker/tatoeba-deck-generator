@@ -5,6 +5,7 @@ import sqlite3
 import csv
 from query import makeCardsCSV
 from download_and_prepare import download_and_prepare
+from audio_urls import download_and_rename
 
 DIR_PATH = "./database/"
 DB_CONTENTS = set(['date.txt', 'links.csv', 'sentences_with_audio.csv',
@@ -167,7 +168,7 @@ def main():
     
     # Download database if user doesn't already have it, or their copy is too old
     if not checkDatabase():
-        print("First, downloading the data from Tatoeba.")
+        input("First, we have to download the data from Tatoeba. Press Enter to continue.")
         downloadTatoebaData()
 
         print("Now, import the data into a database.")
@@ -176,7 +177,8 @@ def main():
     # Make a CSV file consisting of sentences with target language audio and english translations.
     makeCardsCSV(target_lang, "eng")
 
-    # Download audio files
+    input("Next, we have to download the audio files for the sentences. This may take a while. Press Enter to continue.")
+    download_and_rename(target_lang)
     # Lemmatise and sort?
     sort = (input("Do you want to sort the cards? (y/n) ") == 'y' and target_lang == 'mar')
     if sort:
