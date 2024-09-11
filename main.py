@@ -6,6 +6,7 @@ import csv
 from query import makeCardsCSV
 from download_and_prepare import download_and_prepare
 from audio_urls import download_and_rename
+from sort import sortMarathiCards
 
 DIR_PATH = "./database/"
 DB_CONTENTS = set(['date.txt', 'links.csv', 'sentences_with_audio.csv',
