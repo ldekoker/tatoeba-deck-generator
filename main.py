@@ -55,10 +55,10 @@ def downloadTatoebaData():
     if checkPathExists(DIR_PATH):
         rmtree(DIR_PATH)
     
-    # Run the shell commands to download all of the files.
+    # Download all of the files
     download_and_prepare()
 
-    # Create a date file to mark the age of the downloaded database.
+    # Create a date file to mark the age of the downloaded files.
     today = datetime.date.today()
     year, month, day = today.year, today.month, today.day
     date_text = f"{year} {month} {day}"
@@ -66,9 +66,10 @@ def downloadTatoebaData():
     date_file.write(date_text)
     date_file.close()
 
-    print("Data downloaded from the internet. Next, data will be imported into a database.")
-
 def importDatabase():
+    """
+    Import the content of the downloaded CSV files into an SQLite database.
+    """
     # Create an SQLite database file
     conn = sqlite3.connect('./database/tatoeba.sqlite3')
     c = conn.cursor()
@@ -117,6 +118,8 @@ def importDatabase():
     def import_csv_to_db(csv_file, table_name, columns, validate=True, translation=False):
         """
         Given a csv file and an sql table, import the csv file's data into the table.
+        validate = Should the function check that the 'sentence_id' already exists.
+        translation = Should the function check if the sentence's translation already exists as a sentence_id.
         """
         with open(csv_file, 'r', encoding='utf-8') as f:
             reader = csv.reader(f, delimiter='\t')
@@ -127,11 +130,13 @@ def importDatabase():
 
             # for each row in the csv file, insert data into corresponding table
             for data in reader:
-                sentence_id = data[0]
+                sentence_id = data[0] # sentence_id is always the first column
+
                 if translation:
-                    translation_id = data[1]
+                    translation_id = data[1] # for the translation table, translation_id is the second column
+
                 if validate:
-                    # Check that it exists in sentences
+                    # Check that sentence_id exists in sentences
                     c.execute('SELECT EXISTS(SELECT 1 FROM sentences WHERE sentence_id=?)', (sentence_id,))
                     exists = c.fetchone()[0]
 
@@ -152,11 +157,13 @@ def importDatabase():
     # Import the csv files into the tables
     import_csv_to_db('database/sentences.escaped_quotes.csv', 'sentences', ['sentence_id', 'lang', 'text'], False)
     print("Finished importing sentences.")
-    # Maybe ignore first column?
+
     import_csv_to_db('database/sentences_with_audio.uniq.csv', 'sentences_with_audio', ['sentence_id', 'audio_id', 'username', 'license', 'attribution_url'])
     print("Finished importing sentences with audio.")
+
     import_csv_to_db('database/links.csv', 'links', ['sentence_id', 'translation_id'], True, True)
     print("Finished importing sentences links.")
+
     import_csv_to_db('database/tags.escaped_quotes.csv', 'tags', ['sentence_id', 'tag_name'])
     print("Finished importing sentences tags.")
 
@@ -168,23 +175,28 @@ def importDatabase():
 def main():
     target_lang = input("What is your target language? ")
     
-    # Download database if user doesn't already have it, or their copy is too old
+    # Download database if user doesn't already have it, or if their copy is too old
     if not checkDatabase():
         input("First, we have to download the data from Tatoeba. Press Enter to continue.")
         downloadTatoebaData()
 
-        print("Now, import the data into a database.")
+        print("Data downloaded from the internet. Next, data will be imported into a database.")
         importDatabase()
 
     # Make a CSV file consisting of sentences with target language audio and english translations.
     makeCardsCSV(target_lang, "eng")
 
+    # Download the audio for the sentences.
     input("Next, we have to download the audio files for the sentences. This may take a while. Press Enter to continue.")
     download_and_rename(target_lang)
-    # Lemmatise and sort?
-    sort = (input("Do you want to sort the cards? (y/n) ") == 'y' and target_lang == 'mar')
-    if sort:
-        sortMarathiCards()
+
+    # If target language is Marathi, ask user if they want to sort the cards.
+    if target_lang == 'mar':
+        sort = (input("Do you want to sort the cards? (y/n) ") == 'y' and target_lang == 'mar')
+        if sort:
+            sortMarathiCards()
+    
+    print("Deck generation complete. Available at ./output")
 
 if __name__ == "__main__":
     main()
