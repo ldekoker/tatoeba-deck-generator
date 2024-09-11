@@ -2,7 +2,7 @@ import csv
 import os
 import sqlite3
 
-def native_lang_columns():
+def native_lang_columns(native_langs):
     """
     Create an SQL query for each of the given native languages. Will be inserted into the makeCardsCSV query.
     """
