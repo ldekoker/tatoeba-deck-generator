@@ -4,7 +4,7 @@ import os
 import sqlite3
 from shutil import rmtree
 
-from audio_urls import download_and_rename
+from audio_urls import downloadAudioFiles
 from download_csvs import downloadprepareTatoebaFiles
 from query import makeCardsCSV
 from sort import sortMarathiCards
@@ -188,7 +188,7 @@ def main():
 
     # Download the audio for the sentences.
     input("Next, we have to download the audio files for the sentences. This may take a while. Press Enter to continue.")
-    download_and_rename(target_lang)
+    downloadAudioFiles(target_lang)
 
     # If target language is Marathi, ask user if they want to sort the cards.
     if target_lang == 'mar':

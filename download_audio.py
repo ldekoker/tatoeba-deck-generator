@@ -50,7 +50,7 @@ def rename_files(lang_code):
         new_path = os.path.join(audio_dir, new_filename)
         os.rename(old_path, new_path)
 
-def download_and_rename(lang_code, max_workers=4, database='./database/tatoeba.sqlite3'):
+def downloadAudioFiles(lang_code, max_workers=4, database='./database/tatoeba.sqlite3'):
     """Download audio files in parallel and rename them."""
     # Create audio output directory if it doesn't exist.
     if not os.path.exists('./output/audio/'):
