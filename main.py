@@ -4,7 +4,7 @@ import os
 import sqlite3
 from shutil import rmtree
 
-from audio_urls import downloadAudioFiles
+from download_audio import downloadAudioFiles
 from download_csvs import downloadprepareTatoebaFiles
 from query import makeCardsCSV
 from sort import sortMarathiCards
